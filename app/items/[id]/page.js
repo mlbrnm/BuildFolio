@@ -279,10 +279,9 @@ export default function ItemDetailPage({ params }) {
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             {/* Images - Left Column */}
-            <div className="lg:col-span-5">
-              <div className="bg-card border border-border rounded-lg overflow-hidden sticky top-6">
+            <div className="lg:col-span-7">
+              <div className="bg-card overflow-hidden sticky top-6">
                 <div className="p-6">
-                  <h2 className="text-xl font-bold mb-4">Images</h2>
                   <ImageGallery
                     images={item.images || []}
                     itemId={id}
@@ -293,7 +292,7 @@ export default function ItemDetailPage({ params }) {
             </div>
 
             {/* Details - Right Column */}
-            <div className="lg:col-span-7 space-y-6">
+            <div className="lg:col-span-5 space-y-6">
               {/* Basic Info */}
               <div className="bg-card border border-border rounded-lg overflow-hidden">
                 <div className="p-6">
