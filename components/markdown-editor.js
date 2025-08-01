@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 export default function MarkdownEditor({ id, value, onChange }) {
   const [content, setContent] = useState(value || "");
   const [preview, setPreview] = useState(false);
-  const [height, setHeight] = useState("200px");
+  const [height, setHeight] = useState("100px");
 
   useEffect(() => {
     setContent(value || "");

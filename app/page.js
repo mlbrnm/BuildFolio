@@ -131,9 +131,12 @@ export default function HomePage() {
               >
                 <div className="border border-border rounded-lg overflow-hidden bg-card hover:border-primary/50 transition-colors">
                   <div className="h-40 bg-muted flex items-center justify-center">
-                    {item.image ? (
+                    {item.images && item.images.length > 0 ? (
                       <img
-                        src={item.image}
+                        src={
+                          item.images.find((img) => img.isThumbnail)?.url ||
+                          item.images[0].url
+                        }
                         alt={item.name}
                         className="w-full h-full object-cover"
                       />

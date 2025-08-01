@@ -8,6 +8,7 @@ import { getItem, getItemType, updateItem, deleteItem } from "@/lib/db";
 import { formatDate } from "@/lib/utils";
 import Link from "next/link";
 import DynamicForm from "@/components/dynamic-form";
+import ImageGallery from "@/components/image-gallery";
 
 export default function ItemDetailPage({ params }) {
   const { id } = React.use(params);
@@ -247,6 +248,15 @@ export default function ItemDetailPage({ params }) {
                 />
               </div>
 
+              <div>
+                <h3 className="text-lg font-medium mb-4">Images</h3>
+                <ImageGallery
+                  images={item.images || []}
+                  itemId={id}
+                  onChange={(images) => setItem({ ...item, images })}
+                />
+              </div>
+
               <DynamicForm
                 schema={itemType}
                 data={item}
@@ -256,6 +266,18 @@ export default function ItemDetailPage({ params }) {
           </div>
         ) : (
           <>
+            {/* Images */}
+            <div className="bg-card border border-border rounded-lg overflow-hidden">
+              <div className="p-6">
+                <h2 className="text-xl font-bold mb-4">Images</h2>
+                <ImageGallery
+                  images={item.images || []}
+                  itemId={id}
+                  readOnly={true}
+                />
+              </div>
+            </div>
+
             {/* Basic Info */}
             <div className="bg-card border border-border rounded-lg overflow-hidden">
               <div className="p-6">
@@ -274,27 +296,12 @@ export default function ItemDetailPage({ params }) {
                           {field.name}
                         </h3>
                         <div className="text-foreground">
-                          {field.type === "boolean" ? (
-                            value ? (
-                              "Yes"
-                            ) : (
-                              "No"
-                            )
-                          ) : field.type === "date" ? (
-                            formatDate(value)
-                          ) : field.type === "select" ? (
-                            field.options.find((o) => o.value === value)
-                              ?.label || value
-                          ) : field.type === "markdown" ? (
-                            <div
-                              className="prose prose-sm max-w-none"
-                              dangerouslySetInnerHTML={{
-                                __html: renderMarkdown(value),
-                              }}
-                            />
-                          ) : (
-                            value
-                          )}
+                          <div
+                            className="prose prose-sm max-w-none"
+                            dangerouslySetInnerHTML={{
+                              __html: renderMarkdown(value),
+                            }}
+                          />
                         </div>
                       </div>
                     );
@@ -347,28 +354,12 @@ export default function ItemDetailPage({ params }) {
                                     {field.name}
                                   </h4>
                                   <div className="text-foreground">
-                                    {field.type === "boolean" ? (
-                                      value ? (
-                                        "Yes"
-                                      ) : (
-                                        "No"
-                                      )
-                                    ) : field.type === "date" ? (
-                                      formatDate(value)
-                                    ) : field.type === "select" ? (
-                                      field.options.find(
-                                        (o) => o.value === value
-                                      )?.label || value
-                                    ) : field.type === "markdown" ? (
-                                      <div
-                                        className="prose prose-sm max-w-none"
-                                        dangerouslySetInnerHTML={{
-                                          __html: renderMarkdown(value),
-                                        }}
-                                      />
-                                    ) : (
-                                      value
-                                    )}
+                                    <div
+                                      className="prose prose-sm max-w-none"
+                                      dangerouslySetInnerHTML={{
+                                        __html: renderMarkdown(value),
+                                      }}
+                                    />
                                   </div>
                                 </div>
                               );

@@ -307,35 +307,7 @@ export default function ItemTypeDetailPage({ params }) {
                 />
               </div>
 
-              <div>
-                <label
-                  htmlFor={`field-${index}-type`}
-                  className="block text-sm font-medium text-foreground mb-1"
-                >
-                  Field Type
-                </label>
-                <select
-                  id={`field-${index}-type`}
-                  value={field.type}
-                  onChange={(e) =>
-                    handleFieldChange(index, {
-                      ...field,
-                      type: e.target.value,
-                      options:
-                        e.target.value === "select"
-                          ? [{ label: "Option 1", value: "option1" }]
-                          : [],
-                    })
-                  }
-                  className="w-full p-2 bg-background border border-border rounded-md"
-                >
-                  {DEFAULT_FIELD_TYPES.map((type) => (
-                    <option key={type.id} value={type.id}>
-                      {type.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              {/* Field type is now always markdown */}
 
               <div className="flex items-center">
                 <input
@@ -358,81 +330,7 @@ export default function ItemTypeDetailPage({ params }) {
                 </label>
               </div>
 
-              {field.type === "select" && (
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-1">
-                    Options
-                  </label>
-                  <div className="space-y-2">
-                    {field.options.map((option, optionIndex) => (
-                      <div key={optionIndex} className="flex space-x-2">
-                        <input
-                          type="text"
-                          value={option.label}
-                          onChange={(e) => {
-                            const newOptions = [...field.options];
-                            newOptions[optionIndex] = {
-                              ...newOptions[optionIndex],
-                              label: e.target.value,
-                              value: e.target.value
-                                .toLowerCase()
-                                .replace(/\s+/g, "-"),
-                            };
-                            handleFieldChange(index, {
-                              ...field,
-                              options: newOptions,
-                            });
-                          }}
-                          className="flex-1 p-2 bg-background border border-border rounded-md"
-                          placeholder="Option label"
-                        />
-                        <button
-                          onClick={() => {
-                            const newOptions = [...field.options];
-                            newOptions.splice(optionIndex, 1);
-                            handleFieldChange(index, {
-                              ...field,
-                              options: newOptions,
-                            });
-                          }}
-                          disabled={field.options.length <= 1}
-                          className="p-2 text-destructive hover:text-destructive/80 disabled:opacity-50"
-                        >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-5 w-5"
-                            viewBox="0 0 20 20"
-                            fill="currentColor"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                        </button>
-                      </div>
-                    ))}
-                    <button
-                      onClick={() => {
-                        const newOptions = [...field.options];
-                        const newIndex = newOptions.length + 1;
-                        newOptions.push({
-                          label: `Option ${newIndex}`,
-                          value: `option${newIndex}`,
-                        });
-                        handleFieldChange(index, {
-                          ...field,
-                          options: newOptions,
-                        });
-                      }}
-                      className="text-primary hover:text-primary/80 text-sm"
-                    >
-                      + Add Option
-                    </button>
-                  </div>
-                </div>
-              )}
+              {/* Options removed as all fields are now markdown */}
             </div>
           </div>
         ))}
@@ -538,44 +436,7 @@ export default function ItemTypeDetailPage({ params }) {
                           />
                         </div>
 
-                        <div>
-                          <label
-                            htmlFor={`nested-${nestedIndex}-field-${fieldIndex}-type`}
-                            className="block text-sm font-medium text-foreground mb-1"
-                          >
-                            Field Type
-                          </label>
-                          <select
-                            id={`nested-${nestedIndex}-field-${fieldIndex}-type`}
-                            value={field.type}
-                            onChange={(e) =>
-                              handleNestedSubfieldChange(
-                                nestedIndex,
-                                fieldIndex,
-                                {
-                                  ...field,
-                                  type: e.target.value,
-                                  options:
-                                    e.target.value === "select"
-                                      ? [
-                                          {
-                                            label: "Option 1",
-                                            value: "option1",
-                                          },
-                                        ]
-                                      : [],
-                                }
-                              )
-                            }
-                            className="w-full p-2 bg-background border border-border rounded-md"
-                          >
-                            {DEFAULT_FIELD_TYPES.map((type) => (
-                              <option key={type.id} value={type.id}>
-                                {type.name}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
+                        {/* Field type is now always markdown */}
 
                         <div className="flex items-center">
                           <input
@@ -602,96 +463,7 @@ export default function ItemTypeDetailPage({ params }) {
                           </label>
                         </div>
 
-                        {field.type === "select" && (
-                          <div>
-                            <label className="block text-sm font-medium text-foreground mb-1">
-                              Options
-                            </label>
-                            <div className="space-y-2">
-                              {field.options.map((option, optionIndex) => (
-                                <div
-                                  key={optionIndex}
-                                  className="flex space-x-2"
-                                >
-                                  <input
-                                    type="text"
-                                    value={option.label}
-                                    onChange={(e) => {
-                                      const newOptions = [...field.options];
-                                      newOptions[optionIndex] = {
-                                        ...newOptions[optionIndex],
-                                        label: e.target.value,
-                                        value: e.target.value
-                                          .toLowerCase()
-                                          .replace(/\s+/g, "-"),
-                                      };
-                                      handleNestedSubfieldChange(
-                                        nestedIndex,
-                                        fieldIndex,
-                                        {
-                                          ...field,
-                                          options: newOptions,
-                                        }
-                                      );
-                                    }}
-                                    className="flex-1 p-2 bg-background border border-border rounded-md"
-                                    placeholder="Option label"
-                                  />
-                                  <button
-                                    onClick={() => {
-                                      const newOptions = [...field.options];
-                                      newOptions.splice(optionIndex, 1);
-                                      handleNestedSubfieldChange(
-                                        nestedIndex,
-                                        fieldIndex,
-                                        {
-                                          ...field,
-                                          options: newOptions,
-                                        }
-                                      );
-                                    }}
-                                    disabled={field.options.length <= 1}
-                                    className="p-2 text-destructive hover:text-destructive/80 disabled:opacity-50"
-                                  >
-                                    <svg
-                                      xmlns="http://www.w3.org/2000/svg"
-                                      className="h-5 w-5"
-                                      viewBox="0 0 20 20"
-                                      fill="currentColor"
-                                    >
-                                      <path
-                                        fillRule="evenodd"
-                                        d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                                        clipRule="evenodd"
-                                      />
-                                    </svg>
-                                  </button>
-                                </div>
-                              ))}
-                              <button
-                                onClick={() => {
-                                  const newOptions = [...field.options];
-                                  const newIndex = newOptions.length + 1;
-                                  newOptions.push({
-                                    label: `Option ${newIndex}`,
-                                    value: `option${newIndex}`,
-                                  });
-                                  handleNestedSubfieldChange(
-                                    nestedIndex,
-                                    fieldIndex,
-                                    {
-                                      ...field,
-                                      options: newOptions,
-                                    }
-                                  );
-                                }}
-                                className="text-primary hover:text-primary/80 text-sm"
-                              >
-                                + Add Option
-                              </button>
-                            </div>
-                          </div>
-                        )}
+                        {/* Options removed as all fields are now markdown */}
                       </div>
                     </div>
                   ))}

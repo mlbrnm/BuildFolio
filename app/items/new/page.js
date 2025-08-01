@@ -7,6 +7,7 @@ import { getItemTypes, createItem } from "@/lib/db";
 import { generateEmptyData } from "@/lib/schema-utils";
 import Link from "next/link";
 import DynamicForm from "@/components/dynamic-form";
+import ImageGallery from "@/components/image-gallery";
 
 export default function NewItemPage() {
   const { user } = useAuth();
@@ -211,14 +212,25 @@ export default function NewItemPage() {
           </div>
 
           {selectedType && (
-            <div className="bg-card border border-border rounded-lg p-6">
-              <h2 className="text-xl font-bold mb-6">Item Details</h2>
-              <DynamicForm
-                schema={selectedType}
-                data={formData}
-                onChange={handleFormChange}
-              />
-            </div>
+            <>
+              <div className="bg-card border border-border rounded-lg p-6">
+                <h2 className="text-xl font-bold mb-6">Images</h2>
+                <ImageGallery
+                  images={formData.images || []}
+                  itemId="temp" // Will be replaced with actual ID after creation
+                  onChange={(images) => setFormData({ ...formData, images })}
+                />
+              </div>
+
+              <div className="bg-card border border-border rounded-lg p-6">
+                <h2 className="text-xl font-bold mb-6">Item Details</h2>
+                <DynamicForm
+                  schema={selectedType}
+                  data={formData}
+                  onChange={handleFormChange}
+                />
+              </div>
+            </>
           )}
 
           <div className="flex justify-end space-x-2">

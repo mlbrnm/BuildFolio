@@ -72,101 +72,13 @@ export default function DynamicForm({ schema, data, onChange }) {
         ? formData[field.id]
         : field.defaultValue;
 
-    switch (field.type) {
-      case "text":
-        return (
-          <input
-            type="text"
-            id={field.id}
-            value={value || ""}
-            onChange={(e) => handleChange(field.id, e.target.value)}
-            className="w-full p-2 bg-background border border-border rounded-md"
-            required={field.required}
-          />
-        );
-
-      case "number":
-        return (
-          <input
-            type="number"
-            id={field.id}
-            value={value || 0}
-            onChange={(e) =>
-              handleChange(field.id, parseFloat(e.target.value) || 0)
-            }
-            className="w-full p-2 bg-background border border-border rounded-md"
-            required={field.required}
-          />
-        );
-
-      case "boolean":
-        return (
-          <div className="flex items-center">
-            <input
-              type="checkbox"
-              id={field.id}
-              checked={!!value}
-              onChange={(e) => handleChange(field.id, e.target.checked)}
-              className="mr-2"
-              required={field.required}
-            />
-            <label htmlFor={field.id} className="text-sm text-foreground">
-              Yes
-            </label>
-          </div>
-        );
-
-      case "date":
-        return (
-          <input
-            type="date"
-            id={field.id}
-            value={value || ""}
-            onChange={(e) => handleChange(field.id, e.target.value)}
-            className="w-full p-2 bg-background border border-border rounded-md"
-            required={field.required}
-          />
-        );
-
-      case "select":
-        return (
-          <select
-            id={field.id}
-            value={value || ""}
-            onChange={(e) => handleChange(field.id, e.target.value)}
-            className="w-full p-2 bg-background border border-border rounded-md"
-            required={field.required}
-          >
-            <option value="">Select an option</option>
-            {field.options?.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        );
-
-      case "markdown":
-        return (
-          <MarkdownEditor
-            id={field.id}
-            value={value || ""}
-            onChange={(value) => handleChange(field.id, value)}
-          />
-        );
-
-      default:
-        return (
-          <input
-            type="text"
-            id={field.id}
-            value={value || ""}
-            onChange={(e) => handleChange(field.id, e.target.value)}
-            className="w-full p-2 bg-background border border-border rounded-md"
-            required={field.required}
-          />
-        );
-    }
+    return (
+      <MarkdownEditor
+        id={field.id}
+        value={value || ""}
+        onChange={(value) => handleChange(field.id, value)}
+      />
+    );
   };
 
   return (
@@ -244,161 +156,22 @@ export default function DynamicForm({ schema, data, onChange }) {
                           <span className="text-destructive ml-1">*</span>
                         )}
                       </label>
-                      {(() => {
-                        const value =
+                      <MarkdownEditor
+                        id={`${nestedField.id}-${itemIndex}-${field.id}`}
+                        value={
                           item[field.id] !== undefined
                             ? item[field.id]
-                            : field.defaultValue;
-
-                        switch (field.type) {
-                          case "text":
-                            return (
-                              <input
-                                type="text"
-                                id={`${nestedField.id}-${itemIndex}-${field.id}`}
-                                value={value || ""}
-                                onChange={(e) =>
-                                  handleNestedItemChange(
-                                    nestedField.id,
-                                    itemIndex,
-                                    field.id,
-                                    e.target.value
-                                  )
-                                }
-                                className="w-full p-2 bg-background border border-border rounded-md"
-                                required={field.required}
-                              />
-                            );
-
-                          case "number":
-                            return (
-                              <input
-                                type="number"
-                                id={`${nestedField.id}-${itemIndex}-${field.id}`}
-                                value={value || 0}
-                                onChange={(e) =>
-                                  handleNestedItemChange(
-                                    nestedField.id,
-                                    itemIndex,
-                                    field.id,
-                                    parseFloat(e.target.value) || 0
-                                  )
-                                }
-                                className="w-full p-2 bg-background border border-border rounded-md"
-                                required={field.required}
-                              />
-                            );
-
-                          case "boolean":
-                            return (
-                              <div className="flex items-center">
-                                <input
-                                  type="checkbox"
-                                  id={`${nestedField.id}-${itemIndex}-${field.id}`}
-                                  checked={!!value}
-                                  onChange={(e) =>
-                                    handleNestedItemChange(
-                                      nestedField.id,
-                                      itemIndex,
-                                      field.id,
-                                      e.target.checked
-                                    )
-                                  }
-                                  className="mr-2"
-                                  required={field.required}
-                                />
-                                <label
-                                  htmlFor={`${nestedField.id}-${itemIndex}-${field.id}`}
-                                  className="text-sm text-foreground"
-                                >
-                                  Yes
-                                </label>
-                              </div>
-                            );
-
-                          case "date":
-                            return (
-                              <input
-                                type="date"
-                                id={`${nestedField.id}-${itemIndex}-${field.id}`}
-                                value={value || ""}
-                                onChange={(e) =>
-                                  handleNestedItemChange(
-                                    nestedField.id,
-                                    itemIndex,
-                                    field.id,
-                                    e.target.value
-                                  )
-                                }
-                                className="w-full p-2 bg-background border border-border rounded-md"
-                                required={field.required}
-                              />
-                            );
-
-                          case "select":
-                            return (
-                              <select
-                                id={`${nestedField.id}-${itemIndex}-${field.id}`}
-                                value={value || ""}
-                                onChange={(e) =>
-                                  handleNestedItemChange(
-                                    nestedField.id,
-                                    itemIndex,
-                                    field.id,
-                                    e.target.value
-                                  )
-                                }
-                                className="w-full p-2 bg-background border border-border rounded-md"
-                                required={field.required}
-                              >
-                                <option value="">Select an option</option>
-                                {field.options?.map((option) => (
-                                  <option
-                                    key={option.value}
-                                    value={option.value}
-                                  >
-                                    {option.label}
-                                  </option>
-                                ))}
-                              </select>
-                            );
-
-                          case "markdown":
-                            return (
-                              <MarkdownEditor
-                                id={`${nestedField.id}-${itemIndex}-${field.id}`}
-                                value={value || ""}
-                                onChange={(value) =>
-                                  handleNestedItemChange(
-                                    nestedField.id,
-                                    itemIndex,
-                                    field.id,
-                                    value
-                                  )
-                                }
-                              />
-                            );
-
-                          default:
-                            return (
-                              <input
-                                type="text"
-                                id={`${nestedField.id}-${itemIndex}-${field.id}`}
-                                value={value || ""}
-                                onChange={(e) =>
-                                  handleNestedItemChange(
-                                    nestedField.id,
-                                    itemIndex,
-                                    field.id,
-                                    e.target.value
-                                  )
-                                }
-                                className="w-full p-2 bg-background border border-border rounded-md"
-                                required={field.required}
-                              />
-                            );
+                            : field.defaultValue || ""
                         }
-                      })()}
+                        onChange={(value) =>
+                          handleNestedItemChange(
+                            nestedField.id,
+                            itemIndex,
+                            field.id,
+                            value
+                          )
+                        }
+                      />
                     </div>
                   ))}
                 </div>

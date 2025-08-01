@@ -1,0 +1,351 @@
+"use client";
+
+import { useState, useRef } from "react";
+import { uploadImage } from "@/lib/db";
+
+export default function ImageGallery({
+  images = [],
+  itemId,
+  onChange,
+  readOnly = false,
+}) {
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState(null);
+  const fileInputRef = useRef(null);
+  const [activeImage, setActiveImage] = useState(null);
+
+  const handleFileChange = async (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+
+    setUploading(true);
+    setError(null);
+
+    try {
+      const newImages = [...images];
+
+      for (const file of files) {
+        // Check if file is an image
+        if (!file.type.startsWith("image/")) {
+          setError("Only image files are allowed");
+          continue;
+        }
+
+        // Upload the image to Firebase Storage
+        const path = `items/${itemId}/images/${Date.now()}_${file.name}`;
+        const imageData = await uploadImage(file, path);
+
+        // Add the image to the array with a caption
+        newImages.push({
+          ...imageData,
+          caption: "",
+          isThumbnail: newImages.length === 0, // First image is thumbnail by default
+        });
+      }
+
+      // Clear the file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+
+      // Update the parent component
+      if (onChange) {
+        onChange(newImages);
+      }
+    } catch (error) {
+      console.error("Error uploading images:", error);
+      setError("Failed to upload images");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleCaptionChange = (index, caption) => {
+    const newImages = [...images];
+    newImages[index].caption = caption;
+
+    if (onChange) {
+      onChange(newImages);
+    }
+  };
+
+  const handleSetThumbnail = (index) => {
+    const newImages = [...images];
+
+    // Remove thumbnail flag from all images
+    newImages.forEach((img) => (img.isThumbnail = false));
+
+    // Set the selected image as thumbnail
+    newImages[index].isThumbnail = true;
+
+    if (onChange) {
+      onChange(newImages);
+    }
+  };
+
+  const handleRemoveImage = (index) => {
+    const newImages = [...images];
+    const removedImage = newImages.splice(index, 1)[0];
+
+    // If the removed image was the thumbnail, set the first image as thumbnail
+    if (removedImage.isThumbnail && newImages.length > 0) {
+      newImages[0].isThumbnail = true;
+    }
+
+    if (onChange) {
+      onChange(newImages);
+    }
+
+    // Close the modal if the active image is removed
+    if (activeImage === index) {
+      setActiveImage(null);
+    }
+  };
+
+  const getThumbnailImage = () => {
+    const thumbnail = images.find((img) => img.isThumbnail);
+    return thumbnail || (images.length > 0 ? images[0] : null);
+  };
+
+  return (
+    <div className="space-y-4">
+      {!readOnly && (
+        <>
+          <div className="flex items-center gap-4">
+            <label
+              htmlFor="image-upload"
+              className="cursor-pointer bg-primary text-primary-foreground px-4 py-2 rounded-md inline-flex items-center"
+            >
+              {uploading ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-primary-foreground mr-2"></div>
+                  Uploading...
+                </>
+              ) : (
+                <>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 mr-2"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M4 5a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2h-1.586a1 1 0 01-.707-.293l-1.121-1.121A2 2 0 0011.172 3H8.828a2 2 0 00-1.414.586L6.293 4.707A1 1 0 015.586 5H4zm6 9a3 3 0 100-6 3 3 0 000 6z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  Add Images
+                </>
+              )}
+              <input
+                id="image-upload"
+                type="file"
+                accept="image/*"
+                multiple
+                className="hidden"
+                onChange={handleFileChange}
+                disabled={uploading}
+                ref={fileInputRef}
+              />
+            </label>
+            <p className="text-sm text-muted-foreground">
+              Upload images for this item
+            </p>
+          </div>
+
+          {error && (
+            <div className="bg-destructive/10 text-destructive p-3 rounded-md text-sm">
+              {error}
+            </div>
+          )}
+        </>
+      )}
+
+      {/* Image Gallery */}
+      {images.length > 0 ? (
+        <div className="space-y-6">
+          {/* Thumbnail Display */}
+          <div className="bg-card border border-border rounded-lg overflow-hidden">
+            <div className="p-4 border-b border-border">
+              <h3 className="font-medium">Thumbnail Image</h3>
+            </div>
+            <div className="p-6 flex justify-center">
+              {getThumbnailImage() ? (
+                <img
+                  src={getThumbnailImage().url}
+                  alt={getThumbnailImage().caption || "Thumbnail"}
+                  className="max-h-64 object-contain cursor-pointer"
+                  onClick={() =>
+                    setActiveImage(images.findIndex((img) => img.isThumbnail))
+                  }
+                />
+              ) : (
+                <div className="text-muted-foreground">No thumbnail set</div>
+              )}
+            </div>
+            {!readOnly && getThumbnailImage()?.caption && (
+              <div className="p-4 border-t border-border text-center text-sm text-muted-foreground">
+                {getThumbnailImage().caption}
+              </div>
+            )}
+          </div>
+
+          {/* Image Grid */}
+          <div>
+            <h3 className="font-medium mb-3">All Images</h3>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+              {images.map((image, index) => (
+                <div
+                  key={index}
+                  className={`border rounded-md overflow-hidden ${
+                    image.isThumbnail ? "border-primary" : "border-border"
+                  }`}
+                >
+                  <div className="aspect-square relative">
+                    <img
+                      src={image.url}
+                      alt={image.caption || `Image ${index + 1}`}
+                      className="absolute inset-0 w-full h-full object-cover cursor-pointer"
+                      onClick={() => setActiveImage(index)}
+                    />
+                  </div>
+                  {!readOnly && (
+                    <div className="p-2 flex justify-between items-center bg-card">
+                      <button
+                        type="button"
+                        onClick={() => handleSetThumbnail(index)}
+                        className={`text-xs ${
+                          image.isThumbnail
+                            ? "text-primary font-medium"
+                            : "text-muted-foreground hover:text-foreground"
+                        }`}
+                        disabled={image.isThumbnail}
+                      >
+                        {image.isThumbnail ? "Thumbnail" : "Set as Thumbnail"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveImage(index)}
+                        className="text-destructive hover:text-destructive/80 text-xs"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="text-center py-10 border border-dashed border-border rounded-lg">
+          <div className="mx-auto w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-8 w-8 text-muted-foreground"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+              />
+            </svg>
+          </div>
+          <p className="text-muted-foreground">No images added yet</p>
+        </div>
+      )}
+
+      {/* Image Modal */}
+      {activeImage !== null && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+          <div className="bg-card rounded-lg max-w-4xl w-full max-h-[90vh] flex flex-col">
+            <div className="p-4 border-b border-border flex justify-between items-center">
+              <h3 className="font-medium">
+                Image {activeImage + 1} of {images.length}
+              </h3>
+              <button
+                type="button"
+                onClick={() => setActiveImage(null)}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
+            <div className="flex-1 overflow-auto p-4 flex items-center justify-center">
+              <img
+                src={images[activeImage].url}
+                alt={images[activeImage].caption || `Image ${activeImage + 1}`}
+                className="max-h-full max-w-full object-contain"
+              />
+            </div>
+            {!readOnly && (
+              <div className="p-4 border-t border-border">
+                <div className="flex gap-4">
+                  <div className="flex-1">
+                    <label
+                      htmlFor="image-caption"
+                      className="block text-sm font-medium text-foreground mb-1"
+                    >
+                      Caption
+                    </label>
+                    <input
+                      type="text"
+                      id="image-caption"
+                      value={images[activeImage].caption || ""}
+                      onChange={(e) =>
+                        handleCaptionChange(activeImage, e.target.value)
+                      }
+                      className="w-full p-2 bg-background border border-border rounded-md"
+                      placeholder="Add a caption for this image"
+                    />
+                  </div>
+                  <div className="flex items-end gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handleSetThumbnail(activeImage)}
+                      className={`px-3 py-2 rounded-md ${
+                        images[activeImage].isThumbnail
+                          ? "bg-primary/10 text-primary"
+                          : "bg-background border border-border hover:bg-muted"
+                      }`}
+                      disabled={images[activeImage].isThumbnail}
+                    >
+                      {images[activeImage].isThumbnail
+                        ? "Current Thumbnail"
+                        : "Set as Thumbnail"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveImage(activeImage)}
+                      className="bg-destructive/10 text-destructive px-3 py-2 rounded-md hover:bg-destructive/20"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
