@@ -44,6 +44,103 @@ export default function HomePage() {
     return null; // Will redirect to login
   }
 
+  // Group items by their typeId
+  const groupItemsByType = () => {
+    const grouped = {};
+
+    // Create a group for items with unknown type
+    grouped["unknown"] = {
+      id: "unknown",
+      name: "Unknown Type",
+      items: [],
+    };
+
+    // Initialize groups for each item type
+    itemTypes.forEach((type) => {
+      grouped[type.id] = {
+        id: type.id,
+        name: type.name,
+        items: [],
+      };
+    });
+
+    // Add items to their respective groups
+    items.forEach((item) => {
+      if (item.typeId && grouped[item.typeId]) {
+        grouped[item.typeId].items.push(item);
+      } else {
+        grouped["unknown"].items.push(item);
+      }
+    });
+
+    // Convert to array and filter out empty groups
+    return Object.values(grouped).filter((group) => group.items.length > 0);
+  };
+
+  // Render an individual item card
+  const renderItemCard = (item, itemType) => {
+    return (
+      <Link key={item.id} href={`/items/${item.id}`} className="block group">
+        <div className="border border-border rounded-lg overflow-hidden bg-card hover:border-primary/50 transition-colors">
+          <div className="h-40 bg-muted flex items-center justify-center">
+            {item.images && item.images.length > 0 ? (
+              <img
+                src={
+                  item.images.find((img) => img.isThumbnail)?.url ||
+                  item.images[0].url
+                }
+                alt={item.name}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="text-4xl text-muted-foreground">
+                {itemType ? (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-12 w-12"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                    />
+                  </svg>
+                ) : (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-12 w-12"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+                    />
+                  </svg>
+                )}
+              </div>
+            )}
+          </div>
+          <div className="p-4">
+            <h3 className="font-medium text-lg group-hover:text-primary transition-colors">
+              {item.name}
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              {itemType ? itemType.name : "Unknown Type"}
+            </p>
+          </div>
+        </div>
+      </Link>
+    );
+  };
+
   return (
     <div>
       <div className="flex justify-between items-center mb-8">
@@ -120,80 +217,26 @@ export default function HomePage() {
           </Link>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {items.map((item) => {
-            const itemType = itemTypes.find((t) => t.id === item.typeId);
-            return (
-              <Link
-                key={item.id}
-                href={`/items/${item.id}`}
-                className="block group"
-              >
-                <div className="border border-border rounded-lg overflow-hidden bg-card hover:border-primary/50 transition-colors">
-                  <div className="h-40 bg-muted flex items-center justify-center">
-                    {item.images && item.images.length > 0 ? (
-                      <img
-                        src={
-                          item.images.find((img) => img.isThumbnail)?.url ||
-                          item.images[0].url
-                        }
-                        alt={item.name}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="text-4xl text-muted-foreground">
-                        {itemType ? (
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-12 w-12"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-                            />
-                          </svg>
-                        ) : (
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-12 w-12"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
-                            />
-                          </svg>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                  <div className="p-4">
-                    <h3 className="font-medium text-lg group-hover:text-primary transition-colors">
-                      {item.name}
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                      {itemType ? itemType.name : "Unknown Type"}
-                    </p>
-                  </div>
-                </div>
-              </Link>
-            );
-          })}
+        <div className="space-y-10">
+          {groupItemsByType().map((group) => (
+            <div key={group.id} className="space-y-4">
+              <h2 className="text-2xl font-bold border-b border-border pb-2">
+                {group.name}
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {group.items.map((item) => {
+                  const itemType = itemTypes.find((t) => t.id === item.typeId);
+                  return renderItemCard(item, itemType);
+                })}
+              </div>
+            </div>
+          ))}
         </div>
       )}
 
       {items.length > 0 && (
-        <div className="mt-8">
-          <h2 className="text-xl font-bold mb-4">Item Types</h2>
+        <div className="mt-12">
+          <h2 className="text-xl font-bold mb-4">Manage Item Types</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {itemTypes.map((type) => (
               <Link
