@@ -228,151 +228,172 @@ export default function ItemDetailPage({ params }) {
 
       <div className="space-y-8">
         {editing ? (
-          <div className="bg-card border border-border rounded-lg p-6">
-            <h2 className="text-xl font-bold mb-6">Edit Item</h2>
-            <div className="space-y-6">
-              <div>
-                <label
-                  htmlFor="name"
-                  className="block text-sm font-medium text-foreground mb-1"
-                >
-                  Item Name
-                </label>
-                <input
-                  type="text"
-                  id="name"
-                  value={item.name}
-                  onChange={(e) => setItem({ ...item, name: e.target.value })}
-                  className="w-full p-2 bg-background border border-border rounded-md"
-                  required
-                />
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            {/* Images - Left Column */}
+            <div className="lg:col-span-5">
+              <div className="bg-card border border-border rounded-lg overflow-hidden sticky top-6">
+                <div className="p-6">
+                  <h2 className="text-xl font-bold mb-4">Images</h2>
+                  <ImageGallery
+                    images={item.images || []}
+                    itemId={id}
+                    onChange={(images) => setItem({ ...item, images })}
+                  />
+                </div>
               </div>
+            </div>
 
-              <div>
-                <h3 className="text-lg font-medium mb-4">Images</h3>
-                <ImageGallery
-                  images={item.images || []}
-                  itemId={id}
-                  onChange={(images) => setItem({ ...item, images })}
-                />
+            {/* Details - Right Column */}
+            <div className="lg:col-span-7 space-y-6">
+              <div className="bg-card border border-border rounded-lg p-6">
+                <h2 className="text-xl font-bold mb-6">Edit Item</h2>
+                <div className="space-y-6">
+                  <div>
+                    <label
+                      htmlFor="name"
+                      className="block text-sm font-medium text-foreground mb-1"
+                    >
+                      Item Name
+                    </label>
+                    <input
+                      type="text"
+                      id="name"
+                      value={item.name}
+                      onChange={(e) =>
+                        setItem({ ...item, name: e.target.value })
+                      }
+                      className="w-full p-2 bg-background border border-border rounded-md"
+                      required
+                    />
+                  </div>
+
+                  <DynamicForm
+                    schema={itemType}
+                    data={item}
+                    onChange={handleFormChange}
+                  />
+                </div>
               </div>
-
-              <DynamicForm
-                schema={itemType}
-                data={item}
-                onChange={handleFormChange}
-              />
             </div>
           </div>
         ) : (
-          <>
-            {/* Images */}
-            <div className="bg-card border border-border rounded-lg overflow-hidden">
-              <div className="p-6">
-                <h2 className="text-xl font-bold mb-4">Images</h2>
-                <ImageGallery
-                  images={item.images || []}
-                  itemId={id}
-                  readOnly={true}
-                />
-              </div>
-            </div>
-
-            {/* Basic Info */}
-            <div className="bg-card border border-border rounded-lg overflow-hidden">
-              <div className="p-6">
-                <h2 className="text-xl font-bold mb-4">Details</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {itemType.fields.map((field) => {
-                    const value = item[field.id];
-
-                    if (value === undefined || value === null || value === "") {
-                      return null;
-                    }
-
-                    return (
-                      <div key={field.id}>
-                        <h3 className="text-sm font-medium text-muted-foreground mb-1">
-                          {field.name}
-                        </h3>
-                        <div className="text-foreground">
-                          <div
-                            className="prose prose-sm max-w-none"
-                            dangerouslySetInnerHTML={{
-                              __html: renderMarkdown(value),
-                            }}
-                          />
-                        </div>
-                      </div>
-                    );
-                  })}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            {/* Images - Left Column */}
+            <div className="lg:col-span-5">
+              <div className="bg-card border border-border rounded-lg overflow-hidden sticky top-6">
+                <div className="p-6">
+                  <h2 className="text-xl font-bold mb-4">Images</h2>
+                  <ImageGallery
+                    images={item.images || []}
+                    itemId={id}
+                    readOnly={true}
+                  />
                 </div>
               </div>
             </div>
 
-            {/* Nested Fields */}
-            {itemType.nestedFields?.map((nestedField) => {
-              const nestedItems = item[nestedField.id] || [];
+            {/* Details - Right Column */}
+            <div className="lg:col-span-7 space-y-6">
+              {/* Basic Info */}
+              <div className="bg-card border border-border rounded-lg overflow-hidden">
+                <div className="p-6">
+                  <h2 className="text-xl font-bold mb-4">Details</h2>
+                  <div className="grid grid-cols-1 gap-6">
+                    {itemType.fields.map((field) => {
+                      const value = item[field.id];
 
-              if (nestedItems.length === 0) {
-                return null;
-              }
+                      if (
+                        value === undefined ||
+                        value === null ||
+                        value === ""
+                      ) {
+                        return null;
+                      }
 
-              return (
-                <div
-                  key={nestedField.id}
-                  className="bg-card border border-border rounded-lg overflow-hidden"
-                >
-                  <div className="p-6">
-                    <h2 className="text-xl font-bold mb-4">
-                      {nestedField.name}
-                    </h2>
-                    <div className="space-y-6">
-                      {nestedItems.map((nestedItem, index) => (
-                        <div
-                          key={index}
-                          className="border border-border rounded-lg p-4"
-                        >
-                          <h3 className="font-medium mb-3">
-                            {nestedField.name} #{index + 1}
+                      return (
+                        <div key={field.id}>
+                          <h3 className="text-sm font-medium text-muted-foreground mb-1">
+                            {field.name}
                           </h3>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {nestedField.fields.map((field) => {
-                              const value = nestedItem[field.id];
-
-                              if (
-                                value === undefined ||
-                                value === null ||
-                                value === ""
-                              ) {
-                                return null;
-                              }
-
-                              return (
-                                <div key={field.id}>
-                                  <h4 className="text-sm font-medium text-muted-foreground mb-1">
-                                    {field.name}
-                                  </h4>
-                                  <div className="text-foreground">
-                                    <div
-                                      className="prose prose-sm max-w-none"
-                                      dangerouslySetInnerHTML={{
-                                        __html: renderMarkdown(value),
-                                      }}
-                                    />
-                                  </div>
-                                </div>
-                              );
-                            })}
+                          <div className="text-foreground">
+                            <div
+                              className="prose prose-sm max-w-none"
+                              dangerouslySetInnerHTML={{
+                                __html: renderMarkdown(value),
+                              }}
+                            />
                           </div>
                         </div>
-                      ))}
-                    </div>
+                      );
+                    })}
                   </div>
                 </div>
-              );
-            })}
-          </>
+              </div>
+
+              {/* Nested Fields */}
+              {itemType.nestedFields?.map((nestedField) => {
+                const nestedItems = item[nestedField.id] || [];
+
+                if (nestedItems.length === 0) {
+                  return null;
+                }
+
+                return (
+                  <div
+                    key={nestedField.id}
+                    className="bg-card border border-border rounded-lg overflow-hidden"
+                  >
+                    <div className="p-6">
+                      <h2 className="text-xl font-bold mb-4">
+                        {nestedField.name}
+                      </h2>
+                      <div className="space-y-6">
+                        {nestedItems.map((nestedItem, index) => (
+                          <div
+                            key={index}
+                            className="border border-border rounded-lg p-4"
+                          >
+                            <h3 className="font-medium mb-3">
+                              {nestedField.name} #{index + 1}
+                            </h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              {nestedField.fields.map((field) => {
+                                const value = nestedItem[field.id];
+
+                                if (
+                                  value === undefined ||
+                                  value === null ||
+                                  value === ""
+                                ) {
+                                  return null;
+                                }
+
+                                return (
+                                  <div key={field.id}>
+                                    <h4 className="text-sm font-medium text-muted-foreground mb-1">
+                                      {field.name}
+                                    </h4>
+                                    <div className="text-foreground">
+                                      <div
+                                        className="prose prose-sm max-w-none"
+                                        dangerouslySetInnerHTML={{
+                                          __html: renderMarkdown(value),
+                                        }}
+                                      />
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         )}
       </div>
     </div>

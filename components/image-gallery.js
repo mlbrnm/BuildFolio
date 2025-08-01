@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { uploadImage } from "@/lib/db";
 
 export default function ImageGallery({
@@ -12,6 +12,7 @@ export default function ImageGallery({
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState(null);
   const fileInputRef = useRef(null);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [activeImage, setActiveImage] = useState(null);
 
   const handleFileChange = async (e) => {
@@ -100,12 +101,39 @@ export default function ImageGallery({
     if (activeImage === index) {
       setActiveImage(null);
     }
+
+    // Update selected image index if needed
+    if (selectedImageIndex >= newImages.length) {
+      setSelectedImageIndex(Math.max(0, newImages.length - 1));
+    } else if (index < selectedImageIndex) {
+      setSelectedImageIndex(selectedImageIndex - 1);
+    }
   };
 
-  const getThumbnailImage = () => {
-    const thumbnail = images.find((img) => img.isThumbnail);
-    return thumbnail || (images.length > 0 ? images[0] : null);
+  // Navigate to the next image
+  const goToNextImage = () => {
+    if (images.length > 0) {
+      setSelectedImageIndex((prevIndex) =>
+        prevIndex === images.length - 1 ? 0 : prevIndex + 1
+      );
+    }
   };
+
+  // Navigate to the previous image
+  const goToPrevImage = () => {
+    if (images.length > 0) {
+      setSelectedImageIndex((prevIndex) =>
+        prevIndex === 0 ? images.length - 1 : prevIndex - 1
+      );
+    }
+  };
+
+  // Set initial selected image when images change
+  useEffect(() => {
+    if (images.length > 0 && selectedImageIndex >= images.length) {
+      setSelectedImageIndex(0);
+    }
+  }, [images, selectedImageIndex]);
 
   return (
     <div className="space-y-4">
@@ -165,42 +193,87 @@ export default function ImageGallery({
       {/* Image Gallery */}
       {images.length > 0 ? (
         <div className="space-y-6">
-          {/* Thumbnail Display */}
-          <div className="bg-card border border-border rounded-lg overflow-hidden">
-            <div className="p-4 border-b border-border">
-              <h3 className="font-medium">Thumbnail Image</h3>
-            </div>
-            <div className="p-6 flex justify-center">
-              {getThumbnailImage() ? (
+          {/* Main Image Display with Navigation */}
+          <div className="bg-card overflow-hidden">
+            <div className="relative">
+              <div className="p-6 flex justify-center items-center min-h-[300px]">
                 <img
-                  src={getThumbnailImage().url}
-                  alt={getThumbnailImage().caption || "Thumbnail"}
-                  className="max-h-64 object-contain cursor-pointer"
-                  onClick={() =>
-                    setActiveImage(images.findIndex((img) => img.isThumbnail))
+                  src={images[selectedImageIndex]?.url}
+                  alt={
+                    images[selectedImageIndex]?.caption ||
+                    `Image ${selectedImageIndex + 1}`
                   }
+                  className="max-h-64 object-contain cursor-pointer"
+                  onClick={() => setActiveImage(selectedImageIndex)}
                 />
-              ) : (
-                <div className="text-muted-foreground">No thumbnail set</div>
+              </div>
+
+              {/* Navigation Arrows */}
+              {images.length > 1 && (
+                <>
+                  <button
+                    onClick={goToPrevImage}
+                    className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-2 rounded-full hover:bg-black/70"
+                    aria-label="Previous image"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-6 w-6"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M15 19l-7-7 7-7"
+                      />
+                    </svg>
+                  </button>
+                  <button
+                    onClick={goToNextImage}
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-2 rounded-full hover:bg-black/70"
+                    aria-label="Next image"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-6 w-6"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 5l7 7-7 7"
+                      />
+                    </svg>
+                  </button>
+                </>
               )}
             </div>
-            {!readOnly && getThumbnailImage()?.caption && (
+            {!readOnly && images[selectedImageIndex]?.caption && (
               <div className="p-4 border-t border-border text-center text-sm text-muted-foreground">
-                {getThumbnailImage().caption}
+                {images[selectedImageIndex].caption}
               </div>
             )}
           </div>
 
-          {/* Image Grid */}
+          {/* Thumbnail Grid */}
           <div>
             <h3 className="font-medium mb-3">All Images</h3>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2">
               {images.map((image, index) => (
                 <div
                   key={index}
                   className={`border rounded-md overflow-hidden ${
-                    image.isThumbnail ? "border-primary" : "border-border"
+                    index === selectedImageIndex
+                      ? "border-primary border-2"
+                      : "border-border"
                   }`}
+                  onClick={() => setSelectedImageIndex(index)}
                 >
                   <div className="aspect-square relative">
                     <img
@@ -211,19 +284,7 @@ export default function ImageGallery({
                     />
                   </div>
                   {!readOnly && (
-                    <div className="p-2 flex justify-between items-center bg-card">
-                      <button
-                        type="button"
-                        onClick={() => handleSetThumbnail(index)}
-                        className={`text-xs ${
-                          image.isThumbnail
-                            ? "text-primary font-medium"
-                            : "text-muted-foreground hover:text-foreground"
-                        }`}
-                        disabled={image.isThumbnail}
-                      >
-                        {image.isThumbnail ? "Thumbnail" : "Set as Thumbnail"}
-                      </button>
+                    <div className="p-2 flex justify-end items-center bg-card">
                       <button
                         type="button"
                         onClick={() => handleRemoveImage(index)}
@@ -262,7 +323,15 @@ export default function ImageGallery({
 
       {/* Image Modal */}
       {activeImage !== null && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+        <div
+          className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
+          onClick={(e) => {
+            // Close modal when clicking outside the modal content
+            if (e.target === e.currentTarget) {
+              setActiveImage(null);
+            }
+          }}
+        >
           <div className="bg-card rounded-lg max-w-4xl w-full max-h-[90vh] flex flex-col">
             <div className="p-4 border-b border-border flex justify-between items-center">
               <h3 className="font-medium">
