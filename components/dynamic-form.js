@@ -91,7 +91,6 @@ export default function DynamicForm({ schema, data, onChange }) {
             className="block text-sm font-medium text-foreground"
           >
             {field.name}
-            {field.required && <span className="text-destructive ml-1">*</span>}
           </label>
           {renderField(field)}
         </div>
@@ -152,9 +151,6 @@ export default function DynamicForm({ schema, data, onChange }) {
                         className="block text-sm font-medium text-foreground"
                       >
                         {field.name}
-                        {field.required && (
-                          <span className="text-destructive ml-1">*</span>
-                        )}
                       </label>
                       <MarkdownEditor
                         id={`${nestedField.id}-${itemIndex}-${field.id}`}
