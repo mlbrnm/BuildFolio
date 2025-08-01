@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 export default function MarkdownEditor({ id, value, onChange }) {
   const [content, setContent] = useState(value || "");
   const [preview, setPreview] = useState(false);
-  const [height, setHeight] = useState("100px");
+  const [height, setHeight] = useState("60px");
 
   useEffect(() => {
     setContent(value || "");
@@ -98,7 +98,7 @@ export default function MarkdownEditor({ id, value, onChange }) {
 
       {preview ? (
         <div
-          className="p-4 bg-background min-h-[200px]"
+          className="p-4 bg-background min-h-[60px]"
           style={{ height }}
           dangerouslySetInnerHTML={{ __html: renderMarkdown(content) }}
         />
@@ -107,12 +107,12 @@ export default function MarkdownEditor({ id, value, onChange }) {
           id={id}
           value={content}
           onChange={handleChange}
-          className="w-full p-4 bg-background min-h-[200px] focus:outline-none"
+          className="w-full p-4 bg-background min-h-[60px] focus:outline-none"
           style={{ height }}
           placeholder="Write your content here using Markdown..."
           onInput={(e) => {
             // Auto-resize the textarea based on content
-            const newHeight = Math.max(200, e.target.scrollHeight);
+            const newHeight = Math.max(60, e.target.scrollHeight);
             setHeight(`${newHeight}px`);
           }}
         />
