@@ -203,7 +203,7 @@ export default function ImageGallery({
                     images[selectedImageIndex]?.caption ||
                     `Image ${selectedImageIndex + 1}`
                   }
-                  className="max-h-64 object-contain cursor-pointer"
+                  className="max-h-90 object-contain cursor-pointer rounded-md"
                   onClick={() => setActiveImage(selectedImageIndex)}
                 />
               </div>
