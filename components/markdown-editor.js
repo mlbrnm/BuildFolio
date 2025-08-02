@@ -90,7 +90,7 @@ export default function MarkdownEditor({ id, value, onChange }) {
         <button
           type="button"
           onClick={togglePreview}
-          className="text-sm text-primary hover:text-primary/80"
+          className="text-sm text-primary hover:text-primary/80 cursor-pointer"
         >
           {preview ? "Edit" : "Preview"}
         </button>
