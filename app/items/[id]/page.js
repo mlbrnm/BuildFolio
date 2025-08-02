@@ -9,6 +9,7 @@ import { formatDate } from "@/lib/utils";
 import Link from "next/link";
 import DynamicForm from "@/components/dynamic-form";
 import ImageGallery from "@/components/image-gallery";
+import LogEntries from "@/components/log-entries";
 
 export default function ItemDetailPage({ params }) {
   const { id } = React.use(params);
@@ -395,6 +396,13 @@ export default function ItemDetailPage({ params }) {
           </div>
         )}
       </div>
+
+      {/* Log Entries Section - Only show when not editing */}
+      {!editing && (
+        <div className="mt-12">
+          <LogEntries itemId={id} userId={user.uid} />
+        </div>
+      )}
     </div>
   );
 }
