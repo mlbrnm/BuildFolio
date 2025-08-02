@@ -14,6 +14,8 @@ export default function ImageGallery({
   const fileInputRef = useRef(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [activeImage, setActiveImage] = useState(null);
+  const [loadingHighRes, setLoadingHighRes] = useState(false);
+  const [highResLoaded, setHighResLoaded] = useState({});
 
   const handleFileChange = async (e) => {
     const files = Array.from(e.target.files);
@@ -135,6 +137,13 @@ export default function ImageGallery({
     }
   }, [images, selectedImageIndex]);
 
+  // Handle high-resolution image loading when modal is opened
+  useEffect(() => {
+    if (activeImage !== null && !highResLoaded[activeImage]) {
+      setLoadingHighRes(true);
+    }
+  }, [activeImage, highResLoaded]);
+
   return (
     <div className="space-y-4">
       {!readOnly && (
@@ -198,7 +207,10 @@ export default function ImageGallery({
             <div className="relative">
               <div className="p-6 flex justify-center items-center min-h-[300px]">
                 <img
-                  src={images[selectedImageIndex]?.url}
+                  src={
+                    images[selectedImageIndex]?.thumbnailUrl ||
+                    images[selectedImageIndex]?.url
+                  }
                   alt={
                     images[selectedImageIndex]?.caption ||
                     `Image ${selectedImageIndex + 1}`
@@ -277,7 +289,7 @@ export default function ImageGallery({
                 >
                   <div className="aspect-square relative">
                     <img
-                      src={image.url}
+                      src={image.thumbnailUrl || image.url}
                       alt={image.caption || `Image ${index + 1}`}
                       className="absolute inset-0 w-full h-full object-cover cursor-pointer"
                       onClick={() => setActiveImage(index)}
@@ -358,11 +370,23 @@ export default function ImageGallery({
                 </svg>
               </button>
             </div>
-            <div className="flex-1 overflow-auto p-4 flex items-center justify-center">
+            <div className="flex-1 overflow-auto p-4 flex items-center justify-center relative">
+              {loadingHighRes && !highResLoaded[activeImage] && (
+                <div className="absolute inset-0 flex items-center justify-center bg-background/50 z-10">
+                  <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+                </div>
+              )}
               <img
                 src={images[activeImage].url}
                 alt={images[activeImage].caption || `Image ${activeImage + 1}`}
                 className="max-h-full max-w-full object-contain"
+                onLoad={() => {
+                  setLoadingHighRes(false);
+                  setHighResLoaded((prev) => ({
+                    ...prev,
+                    [activeImage]: true,
+                  }));
+                }}
               />
             </div>
             {!readOnly && (

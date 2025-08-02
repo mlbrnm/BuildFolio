@@ -86,7 +86,9 @@ export default function HomePage() {
             {item.images && item.images.length > 0 ? (
               <img
                 src={
+                  item.images.find((img) => img.isThumbnail)?.thumbnailUrl ||
                   item.images.find((img) => img.isThumbnail)?.url ||
+                  item.images[0].thumbnailUrl ||
                   item.images[0].url
                 }
                 alt={item.name}
