@@ -435,9 +435,9 @@ function renderMarkdown(text) {
   html = html.replace(/^\*(.+)/gim, "<li>$1</li>");
 
   // Numbered lists
-  html = html.replace(/^\s*\n\d\./gim, "<ol>\n1.");
-  html = html.replace(/^(\d\..+)\s*\n([^\d\.])/gim, "$1\n</ol>\n\n$2");
-  html = html.replace(/^\d\.(.+)/gim, "<li>$1</li>");
+  html = html.replace(/^\s*\n\d\.\s/gim, "<ol>\n1. ");
+  html = html.replace(/^(\d\.\s.+)\s*\n([^\d\.])/gim, "$1\n</ol>\n\n$2");
+  html = html.replace(/^\d\.\s(.+)/gim, "<li>$1</li>");
 
   // Paragraphs
   html = html.replace(/^\s*\n\s*\n/gim, "</p>\n<p>");
