@@ -38,7 +38,7 @@ export default function ItemTypesPage() {
   const handleDelete = async (id) => {
     if (
       !confirm(
-        "Are you sure you want to delete this item type? This action cannot be undone."
+        "Are you sure you want to delete this item type? This will also delete ALL items of this type and ALL images associated with those items. This action cannot be undone."
       )
     ) {
       return;

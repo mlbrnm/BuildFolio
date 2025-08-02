@@ -95,7 +95,7 @@ export default function ItemDetailPage({ params }) {
   const handleDelete = async () => {
     if (
       !confirm(
-        "Are you sure you want to delete this item? This action cannot be undone."
+        "Are you sure you want to delete this item? This will also delete ALL images associated with this item. This action cannot be undone."
       )
     ) {
       return;
