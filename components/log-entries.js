@@ -365,6 +365,12 @@ function renderMarkdown(text) {
     .replace(/\*\*(.*?)\*\*/gim, "<strong>$1</strong>")
     .replace(/\*(.*?)\*/gim, "<em>$1</em>");
 
+  // Images
+  html = html.replace(
+    /!\[([^\]]+)\]\(([^)]+)\)/gim,
+    '<img src="$2" alt="$1" class="max-w-full h-auto rounded-md my-2" />'
+  );
+
   // Links
   html = html.replace(
     /\[([^\]]+)\]\(([^)]+)\)/gim,
@@ -383,12 +389,6 @@ function renderMarkdown(text) {
 
   // Paragraphs
   html = html.replace(/^\s*\n\s*\n/gim, "</p>\n<p>");
-
-  // Images
-  html = html.replace(
-    /!\[([^\]]+)\]\(([^)]+)\)/gim,
-    '<img src="$2" alt="$1" class="max-w-full h-auto rounded-md my-2" />'
-  );
 
   // Code blocks
   html = html.replace(
