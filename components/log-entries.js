@@ -51,12 +51,14 @@ export default function LogEntries({ itemId, userId }) {
     try {
       setSaving(true);
 
+      // Create date in local timezone by parsing year, month, day separately
+      const [year, month, day] = newEntry.date.split("-");
       await createLogEntry({
         itemId,
         userId,
         title: newEntry.title,
         content: newEntry.content,
-        date: new Date(newEntry.date), // Use the selected date
+        date: new Date(parseInt(year), parseInt(month) - 1, parseInt(day)), // month is 0-indexed in JS
       });
 
       setNewEntry({
@@ -84,10 +86,12 @@ export default function LogEntries({ itemId, userId }) {
     try {
       setSaving(true);
 
+      // Create date in local timezone by parsing year, month, day separately
+      const [year, month, day] = newEntry.date.split("-");
       await updateLogEntry(isEditing, {
         title: newEntry.title,
         content: newEntry.content,
-        date: new Date(newEntry.date), // Include date in the update
+        date: new Date(parseInt(year), parseInt(month) - 1, parseInt(day)), // month is 0-indexed in JS
       });
 
       setNewEntry({
