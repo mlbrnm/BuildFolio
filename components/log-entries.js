@@ -20,6 +20,7 @@ export default function LogEntries({ itemId, userId }) {
   const [newEntry, setNewEntry] = useState({
     title: "",
     content: "",
+    date: new Date().toISOString().split("T")[0], // Format as YYYY-MM-DD for date input
   });
   const [saving, setSaving] = useState(false);
 
@@ -55,12 +56,13 @@ export default function LogEntries({ itemId, userId }) {
         userId,
         title: newEntry.title,
         content: newEntry.content,
-        date: new Date(),
+        date: new Date(newEntry.date), // Use the selected date
       });
 
       setNewEntry({
         title: "",
         content: "",
+        date: new Date().toISOString().split("T")[0],
       });
       setIsCreating(false);
       await fetchLogEntries();
@@ -85,11 +87,13 @@ export default function LogEntries({ itemId, userId }) {
       await updateLogEntry(isEditing, {
         title: newEntry.title,
         content: newEntry.content,
+        date: new Date(newEntry.date), // Include date in the update
       });
 
       setNewEntry({
         title: "",
         content: "",
+        date: new Date().toISOString().split("T")[0],
       });
       setIsEditing(null);
       await fetchLogEntries();
@@ -120,9 +124,23 @@ export default function LogEntries({ itemId, userId }) {
   };
 
   const handleEditEntry = (entry) => {
+    // Format the date for the date input
+    let formattedDate;
+    if (entry.date instanceof Date) {
+      formattedDate = entry.date.toISOString().split("T")[0];
+    } else if (entry.date && typeof entry.date.toDate === "function") {
+      // Handle Firestore Timestamp
+      formattedDate = entry.date.toDate().toISOString().split("T")[0];
+    } else if (typeof entry.date === "string") {
+      formattedDate = entry.date;
+    } else {
+      formattedDate = new Date().toISOString().split("T")[0];
+    }
+
     setNewEntry({
       title: entry.title,
       content: entry.content,
+      date: formattedDate,
     });
     setIsEditing(entry.id);
   };
@@ -197,6 +215,25 @@ export default function LogEntries({ itemId, userId }) {
 
             <div>
               <label
+                htmlFor="date"
+                className="block text-sm font-medium text-foreground mb-1"
+              >
+                Date
+              </label>
+              <input
+                type="date"
+                id="date"
+                value={newEntry.date}
+                onChange={(e) =>
+                  setNewEntry({ ...newEntry, date: e.target.value })
+                }
+                className="w-full p-2 bg-background border border-border rounded-md"
+                required
+              />
+            </div>
+
+            <div>
+              <label
                 htmlFor="content"
                 className="block text-sm font-medium text-foreground mb-1"
               >
@@ -222,7 +259,11 @@ export default function LogEntries({ itemId, userId }) {
                 onClick={() => {
                   setIsCreating(false);
                   setIsEditing(null);
-                  setNewEntry({ title: "", content: "" });
+                  setNewEntry({
+                    title: "",
+                    content: "",
+                    date: new Date().toISOString().split("T")[0],
+                  });
                 }}
                 className="px-4 py-2 border border-border rounded-md cursor-pointer"
               >
